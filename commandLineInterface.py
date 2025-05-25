@@ -5,10 +5,11 @@ from pathlib import Path
 class Editor:
   # Reads in all the attributes from config.txt
   def __init__(self):
+    
+    # TODO: Make it so a config.txt file gets automatically generated if the user doesn't have one
     with open("config.txt") as config:
       lines = [line.strip() for line in config.readlines()]
-      
-      
+       
       self.saveLocation = Path(lines[0].split(":::")[1])  # Location of adv{slot}.sav; absolute path
       self.gameLocation = Path(lines[1].split(":::")[1])  # Location of Zuma.exe; absolute path
       self.points = lines[2].split(":::")[1]              # How many points the savefile should have
@@ -32,6 +33,7 @@ class Editor:
     world = int(location.split("-")[0])
     level = int(location.split("-")[1])
     
+    # TODO: Figure out a better failsafe than this
     if level not in self.LEVELS[world][0]:
       print("invalid level for the world")
       return
@@ -68,7 +70,9 @@ class Editor:
   
   # Use this to exit the program
   def closeProgram(self):
+    # Not necessary but it ensures your changes are saved in case something happens
     self.saveEditedSavefile()
+    self.saveConfigParameters()
     
     exit(0)
   
@@ -142,7 +146,7 @@ end (e):
 
 """
 
-
+# State machine that controls the program
 while True:
   # Default state. This is the state you get when launching the program
   if state == State.START:
