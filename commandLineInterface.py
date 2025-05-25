@@ -2,24 +2,72 @@ import subprocess
 from enum import Enum
 from pathlib import Path
 
+# Parses user argumenst for commands that may or may not take several arguments
+def parseUserInputs(response: str) -> dict[str, str]:
+  arguments = {}
+  
+  response = response.strip()
+  for pair in response.split(","):
+    pair = [side.strip() for side in pair.split("=")]
+    
+    arguments[pair[0]] = pair[1]
+  
+  return arguments
+
 class Editor:
   # Reads in all the attributes from config.txt
   def __init__(self):
     
     # TODO: Make it so a config.txt file gets automatically generated if the user doesn't have one
-    with open("config.txt") as config:
+    with open("config.txt", "r") as config:
       lines = [line.strip() for line in config.readlines()]
-       
-      self.saveLocation = Path(lines[0].split(":::")[1])  # Location of adv{slot}.sav; absolute path
-      self.gameLocation = Path(lines[1].split(":::")[1])  # Location of Zuma.exe; absolute path
-      self.points = lines[2].split(":::")[1]              # How many points the savefile should have
-      self.behavior = lines[3].split(":::")[1]            # How the program should behave after a level is selected
-      self.slot = lines[4].split(":::")[1]                # Which slot you are using
-      self.help = int(lines[5].split(":::")[1])           # Whether or not you want to see the explanatory message at the beginning
+      
+      # Location of adv{slot}.sav; absolute path
+      self.saveLocation = Path(lines[0].split(":::")[1])                  
+      
+      # Location of Zuma.exe; absolute path
+      self.gameLocation = Path(lines[1].split(":::")[1])  
+      
+      # How many points the savefile should have
+      self.points = int(lines[2].split(":::")[1]).to_bytes(3, byteorder="little")
+      
+      # How the program should behave after a level is selected               
+      self.behavior = lines[3].split(":::")[1] 
+      
+      # Which slot you are using
+      self.slot = int(lines[4].split(":::")[1])  
+      
+      # Whether or not you want to see the explanatory message at the beginning         
+      self.help = bool(lines[5].split(":::")[1])          
   
   # Use this to update any value from the config file; only does so internally
-  def changeConfigParameters(self):
-    return
+  def changeConfigParameters(
+    self,
+    saveLocation = None,
+    gameLocation = None,
+    points =       None,
+    behavior =     None,
+    slot =         None,
+    help =         None):
+    
+    if (saveLocation != None):
+      self.saveLocation = Path(saveLocation)
+    
+    if (gameLocation != None):
+      self.gameLocation = Path(gameLocation)
+    
+    if (points != None):
+      self.points = int(points).to_bytes(3, byteorder="little")
+    
+    if (behavior != None):
+      self.behavior = behavior
+    
+    if (slot != None):
+      self.slot = int(slot)
+    
+    if (help != None):
+      self.help = bool(int(help))
+        
   
   
   # Use this to transfer your config values from the object to the config.txt file
@@ -71,7 +119,6 @@ class Editor:
   # Use this to exit the program
   def closeProgram(self):
     # Not necessary but it ensures your changes are saved in case something happens
-    self.saveEditedSavefile()
     self.saveConfigParameters()
     
     exit(0)
@@ -92,10 +139,14 @@ class Editor:
       
     else:
       print("Catastrophic error with config file")
+      print("Resetting config file back to defaults")
+      # TODO: Reset it back to defaults once changeConfigParameters is implemented
+      
+      
   
   # Getter function to tell you whether or not you have get as a bool
   def getHelp(self) -> bool:
-    return self.help == 1
+    return self.help
   
   ### Universal variables to define consistent rules around which levels are valid
   # Levels has a set of valid levels per world; catches invalid levels (like 1-7)
@@ -130,17 +181,23 @@ class Editor:
 class State(Enum):
   START = 0
   LEVEL = 1
+  CONFIG = 2
   KILL = 10
 
 configurator = Editor()
 state = State(0)
 response = ""
-helpMessage = """
+helpMessage = fr"""
 List of commands:
 level (l): 
   lets you select which level you want to play
   takes in 1 argument in the form [world]-[level]
   example: level 13-1
+config (c):
+  lets you change the parameters of the config.txt file, which contains the following:
+    saveLocation: absolute filepath of the location of your savefile
+    example: saveLocation="C:\ProgramData\Steam\Zuma\userdata"
+    TODO: fill this out!
 end (e): 
   closes the program
 
@@ -164,9 +221,13 @@ while True:
     
     elif command[0] == "e":
       state = State.KILL
+      
+    elif command[0] == "c":
+      state = State.CONFIG
     
     else:
       print("command not found")
+   
     
   # State where you change level
   # Get here if you called 
@@ -177,6 +238,13 @@ while True:
     
     state = State.START
     
+  if state == State.CONFIG:
+    unparsedArguments = response.split(" ", 1)[1]
+    arguments = parseUserInputs(unparsedArguments)
+    
+    configurator.changeConfigParameters(**arguments)
+    
+    state = State.START
     
     
   # End the application
