@@ -71,7 +71,19 @@ class Editor:
     if (help != None
     and (int(help) == 0 or int(help) == 1)):
       self.help = bool(int(help))
-        
+  
+  # Print your current settings    
+  def printConfigParameters(self):
+    configuration = fr"""
+    saveLocation: {self.saveLocation}
+    gameLocation: {self.gameLocation}
+    points: {int.from_bytes(self.points, byteorder='little')}
+    behavior: {self.behavior}
+    slot: {self.slot}
+    help: {self.help}
+    """
+    
+    print(configuration)
   
   # Use this to transfer your config values from the object to the config.txt file
   def saveConfigParameters(self):
@@ -188,6 +200,7 @@ class State(Enum):
   START = 0
   LEVEL = 1
   CONFIG = 2
+  STATE = 3
   KILL = 10
 
 configurator = Editor()
@@ -220,7 +233,11 @@ config (c):
   You can edit any number of these when calling this function
   Arguments are separated by commas
   Example: config saveLocation=D:\, points=123456
-    
+  
+state (s):
+  See your current configuration settings
+  example: state
+
 end (e): 
   closes the program
 
@@ -248,6 +265,9 @@ while True:
     elif command[0] == "c":
       state = State.CONFIG
     
+    elif command[0] == "s":
+      state = State.STATE
+    
     else:
       print("command not found")
    
@@ -260,12 +280,19 @@ while True:
     configurator.selectLevel(level)
     
     state = State.START
-    
+  
+  # Configure the file
   if state == State.CONFIG:
     unparsedArguments = response.split(" ", 1)[1]
     kwargs = parseUserInputs(unparsedArguments)
     
     configurator.changeConfigParameters(**kwargs)
+    
+    state = State.START
+  
+  # Print your current settings
+  if state == State.STATE:
+    configurator.printConfigParameters()
     
     state = State.START
     
