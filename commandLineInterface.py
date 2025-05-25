@@ -121,9 +121,11 @@ class Editor:
       self.savefile[self.LEVELBYTELOCATION] = byte
       
       # Change the level and world number in the continue screen
-      self.savefile[self.NUMBERSASASCII[level-1][1] + 2] = self.NUMBERSASASCII[level-1][0]
+      self.savefile[self.NUMBERSASASCII[level-1][1] 
+                    + 2 + (world > 9)] = self.NUMBERSASASCII[level-1][0]
       self.savefile[self.NUMBERSASASCII[world-1][1]] = self.NUMBERSASASCII[world-1][0]
       
+      # Change the points
       self.savefile[self.CURRENTPOINTSLOCATION] = self.points
       self.savefile[self.PREVIOUSSCORELOCATION] = self.points
       self.savefile[self.SAVESCREENSCORELOCATION] = self.points
@@ -226,15 +228,15 @@ class Editor:
   # 1st value of the tuple is the ascii representation of the numbers (1 -> b'1')
   # 2nd value is the location of the byte we need to change so the corrrect level shows up in the continue screen
   NUMBERSASASCII = [
-    (0x31,  0x1B),               # '1' ASCII 0x31
-    (0x32,  0x1B),               # '2'
-    (0x33,  0x1B),               # '3'
-    (0x34,  0x1B),               # '4'
-    (0x35,  0x1B),               # '5'
-    (0x36,  0x1B),               # '6'
-    (0x37,  0x1B),               # '7'
-    (0x38,  0x1B),               # '8'
-    (0x39,  0x1B),               # '9'
+    (0x31,  0x1A),               # '1' ASCII 0x31
+    (0x32,  0x1A),               # '2'
+    (0x33,  0x1A),               # '3'
+    (0x34,  0x1A),               # '4'
+    (0x35,  0x1A),               # '5'
+    (0x36,  0x1A),               # '6'
+    (0x37,  0x1A),               # '7'
+    (0x38,  0x1A),               # '8'
+    (0x39,  0x1A),               # '9'
     (bytearray(b'10'), slice(0x1A, 0x1C)),
     (bytearray(b'11'), slice(0x1A, 0x1C)),
     (bytearray(b'12'), slice(0x1A, 0x1C)),
