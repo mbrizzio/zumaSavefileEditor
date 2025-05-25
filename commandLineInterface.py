@@ -40,6 +40,7 @@ class Editor:
       # Whether or not you want to see the explanatory message at the beginning         
       self.help = bool(int(lines[5].split(":::")[1]))      
   
+  
   # Use this to update any value from the config file; only does so internally
   def changeConfigParameters(
   self,
@@ -132,7 +133,6 @@ class Editor:
       
     self.enactBehavior()
   
-  
   # Use this to overwrite your savefile in the SAVELOCATION based on your saveslot
   # WARNING: this deletes your current game for that user! It has no effects on high scores or anything though
   # DO NOT USE OUTSIDE enactBehavior()!
@@ -152,7 +152,6 @@ class Editor:
   # Use this to run Zuma.exe
   def runGame(self):
     subprocess.Popen(fr"{self.gameLocation}", shell=True)
-  
   
   # Use this to exit the program
   def closeProgram(self):
@@ -180,13 +179,12 @@ class Editor:
       print("Resetting config file back to defaults")
       # TODO: Reset it back to defaults once changeConfigParameters is implemented
       
-      
-  
   # Getter function to tell you whether or not you have get as a bool
   def getHelp(self) -> bool:
     return self.help
   
   ### Universal variables to define consistent rules around which levels are valid
+  
   # Levels has a set of valid levels per world; catches invalid levels (like 1-7)
   # it also has the offset you need. In the file, 6 = 2-1 for instance, so the 
   # offset for world 2 is 5
@@ -243,26 +241,19 @@ class Editor:
     (bytearray(b'13'), slice(0x1A, 0x1C))
 ]
   
-  
-
 class State(Enum):
-  START = 0
+  DEFAULT = 0
   LEVEL = 1
   CONFIG = 2
   STATE = 3
+  HELP = 4
   KILL = 10
 
 configurator = Editor()
 state = State(0)
 response = ""
-helpMessage = fr"""
-List of commands:
-level (l): 
-  Lets you select which level you want to play
-  Takes in 1 argument in the form [world]-[level]
-  Example: level 13-1
 
-config (c):
+configHelp = fr"""
   Lets you change the parameters of the config.txt file, which contains the following:
     saveLocation: absolute filepath of the location of your savefile
     Example: saveLocation="C:\ProgramData\Steam\Zuma\userdata"
@@ -282,20 +273,47 @@ config (c):
   You can edit any number of these when calling this function
   Arguments are separated by commas
   Example: config saveLocation=D:\, points=123456
-  
-state (s):
-  See your current configuration settings
-  example: state
+  """
 
-end (e): 
-  closes the program
-
+levelHelp = fr"""
+  Lets you select which level you want to play
+  Takes in 1 argument in the form [world]-[level]
+  Example: level 13-1
 """
+ 
+stateHelp = fr"""
+  See your current configuration settings
+  Example: state
+"""
+
+endHelp = fr"""
+  Closes the program
+  Example: end
+"""
+
+helpHelp = fr"""
+  Takes you to the help screen where you can ask about any command in this script
+  Example: help
+"""
+
+helpMessage = fr"""
+List of commands:
+level (l): {levelHelp}
+config (c): {configHelp}
+state (s): {stateHelp}
+end (e): {endHelp}
+help (h): {helpHelp}
+"""
+
+helpdesk = """Which command do you need help with? Write the name of each one, separated by a comma if you want to see the information of several:
+  level, config, state, end, help
+  
+Enter the list here: """
 
 # State machine that controls the program
 while True:
   # Default state. This is the state you get when launching the program
-  if state == State.START:
+  if state == State.DEFAULT:
     
     if configurator.getHelp():
       print(helpMessage)
@@ -317,6 +335,9 @@ while True:
     elif command[0] == "s":
       state = State.STATE
     
+    elif command[0] == "h":
+      state = State.HELP
+    
     else:
       print("command not found")
    
@@ -328,7 +349,7 @@ while True:
     
     configurator.selectLevel(level)
     
-    state = State.START
+    state = State.DEFAULT
   
   # Configure the file
   if state == State.CONFIG:
@@ -337,14 +358,36 @@ while True:
     
     configurator.changeConfigParameters(**kwargs)
     
-    state = State.START
+    state = State.DEFAULT
   
   # Print your current settings
   if state == State.STATE:
     configurator.printConfigParameters()
     
-    state = State.START
+    state = State.DEFAULT
+  
+  # Let the user ask about any feature in the script
+  if state == State.HELP:
+    commandsRaw = input(helpdesk)
     
+    commands = [command.strip()[0].lower() for command in commandsRaw.split(",")]
+    
+    if "l" in commands:
+      print(levelHelp)
+    
+    if "c" in commands:
+      print(configHelp)
+    
+    if "s" in commands:
+      print(stateHelp)
+    
+    if "e" in commands:
+      print(endHelp)
+    
+    if "h" in commands:
+      print(helpHelp)
+    
+    state = State.DEFAULT
     
   # End the application
   if state == State.KILL:
