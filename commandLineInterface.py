@@ -38,7 +38,7 @@ class Editor:
       self.slot = int(lines[4].split(":::")[1])  
       
       # Whether or not you want to see the explanatory message at the beginning         
-      self.help = bool(lines[5].split(":::")[1])          
+      self.help = bool(int(lines[5].split(":::")[1]))      
   
   # Use this to update any value from the config file; only does so internally
   def changeConfigParameters(
@@ -71,6 +71,8 @@ class Editor:
     if (help != None
     and (int(help) == 0 or int(help) == 1)):
       self.help = bool(int(help))
+    
+    self.saveConfigParameters()
   
   # Print your current settings    
   def printConfigParameters(self):
@@ -87,8 +89,19 @@ class Editor:
   
   # Use this to transfer your config values from the object to the config.txt file
   def saveConfigParameters(self):
-    return
+    configuration = fr"""
+  SAVELOCATION:::{self.saveLocation}
+  GAMELOCATION:::{self.gameLocation}
+  POINTS:::{int.from_bytes(self.points, byteorder='little')}
+  DEFAULTBEHAVIOR:::{self.behavior}
+  SAVEFILESLOT:::{self.slot}
+  HELPMESSAGE:::{int(self.help)}
+  """.strip()
   
+    with open("config.txt", "w") as file:
+      file.write(configuration)
+  
+
   
   # Use this to change which level you want to play
   # Argument expects the same format the game uses: [world]-[level]
