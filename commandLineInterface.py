@@ -102,7 +102,6 @@ class Editor:
       file.write(configuration)
   
 
-  
   # Use this to change which level you want to play
   # Argument expects the same format the game uses: [world]-[level]
   def selectLevel(self, location: str):
@@ -119,6 +118,10 @@ class Editor:
     with open("adv1.sav", "rb") as file:
       self.savefile = bytearray(file.read())
       self.savefile[self.LEVELBYTELOCATION] = byte
+      
+      self.savefile[self.CURRENTPOINTSLOCATION] = self.points
+      self.savefile[self.PREVIOUSSCORELOCATION] = self.points
+      self.savefile[self.SAVESCREENSCORELOCATION] = self.points
       
     self.enactBehavior()
   
@@ -208,6 +211,13 @@ class Editor:
   
   # This is the maximum points you can have in the savefile
   MAXPOINTS = 0xFFFFFF
+  
+  # These are the locations where your points are in the savefile
+  CURRENTPOINTSLOCATION = slice(0x10D, 0x110)
+  PREVIOUSSCORELOCATION = slice(0x111, 0x114)
+  SAVESCREENSCORELOCATION = slice(0x1E, 0x21)
+  
+  
 
 class State(Enum):
   START = 0
