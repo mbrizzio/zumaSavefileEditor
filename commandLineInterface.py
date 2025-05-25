@@ -42,13 +42,13 @@ class Editor:
   
   # Use this to update any value from the config file; only does so internally
   def changeConfigParameters(
-    self,
-    saveLocation = None,
-    gameLocation = None,
-    points =       None,
-    behavior =     None,
-    slot =         None,
-    help =         None):
+  self,
+  saveLocation = None,
+  gameLocation = None,
+  points =       None,
+  behavior =     None,
+  slot =         None,
+  help =         None):
     
     if (saveLocation != None):
       self.saveLocation = Path(saveLocation)
@@ -56,19 +56,22 @@ class Editor:
     if (gameLocation != None):
       self.gameLocation = Path(gameLocation)
     
-    if (points != None):
+    if (points != None 
+    and 0 <= int(points) and int(points) <= self.MAXPOINTS):
       self.points = int(points).to_bytes(3, byteorder="little")
     
-    if (behavior != None):
-      self.behavior = behavior
+    if (behavior != None
+    and behavior.upper() in self.BEHAVIORS):
+      self.behavior = behavior.upper()
     
-    if (slot != None):
+    if (slot != None
+    and int(slot) >= 0 and int(slot) <= 9):
       self.slot = int(slot)
     
-    if (help != None):
+    if (help != None
+    and (int(help) == 0 or int(help) == 1)):
       self.help = bool(int(help))
         
-  
   
   # Use this to transfer your config values from the object to the config.txt file
   def saveConfigParameters(self):
@@ -177,6 +180,9 @@ class Editor:
   
   # This is the exact location where the byte that controls the level you are on is set
   LEVELBYTELOCATION = 16*2+4
+  
+  # This is the maximum points you can have in the savefile
+  MAXPOINTS = 0xFFFFFF
 
 class State(Enum):
   START = 0
@@ -190,14 +196,31 @@ response = ""
 helpMessage = fr"""
 List of commands:
 level (l): 
-  lets you select which level you want to play
-  takes in 1 argument in the form [world]-[level]
-  example: level 13-1
+  Lets you select which level you want to play
+  Takes in 1 argument in the form [world]-[level]
+  Example: level 13-1
+
 config (c):
-  lets you change the parameters of the config.txt file, which contains the following:
+  Lets you change the parameters of the config.txt file, which contains the following:
     saveLocation: absolute filepath of the location of your savefile
-    example: saveLocation="C:\ProgramData\Steam\Zuma\userdata"
-    TODO: fill this out!
+    Example: saveLocation="C:\ProgramData\Steam\Zuma\userdata"
+    gameLocation: absolute filepath of the location of Zuma.exe
+    Example: gameLocation="C:\Program Files (x86)\Steam\steamapps\common\Zuma Deluxe\Zuma.exe"
+    points: how many points you want your savefile to have. 0 <= points <= 16777215
+    Example: points=100000
+    behavior: how the program should behave after you select a level
+      SAVE: overwrite your save to have the new level
+      LAUNCH: overwrite the save and launch the game
+      CLOSE: overwrite the save, launch the game, and close this script
+    Example: behavior=LAUNCH
+    slot: which slot you want to save to, determined by teh order of your profiles in the game
+    Example: slot=1
+    help: whether or not you want to see this message. Has to be 1 or 0
+    Example: help=1
+  You can edit any number of these when calling this function
+  Arguments are separated by commas
+  Example: config saveLocation=D:\, points=123456
+    
 end (e): 
   closes the program
 
@@ -240,9 +263,9 @@ while True:
     
   if state == State.CONFIG:
     unparsedArguments = response.split(" ", 1)[1]
-    arguments = parseUserInputs(unparsedArguments)
+    kwargs = parseUserInputs(unparsedArguments)
     
-    configurator.changeConfigParameters(**arguments)
+    configurator.changeConfigParameters(**kwargs)
     
     state = State.START
     
