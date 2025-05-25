@@ -141,7 +141,7 @@ class Editor:
   
   # Use this to run Zuma.exe
   def runGame(self):
-    subprocess.run(fr"{self.gameLocation}", shell=True)
+    subprocess.Popen(fr"{self.gameLocation}", shell=True)
   
   
   # Use this to exit the program
