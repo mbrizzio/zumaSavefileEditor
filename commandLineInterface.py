@@ -147,8 +147,22 @@ class Editor:
     # Very weird bug where 12-6 in particular just does not want to work, idk why
     # when I check teh savefile of a 12-6, it has hex 49, which is the same as 12-7. 
     # But 12-7 works just fine? idk
-  
-  
+    
+    # List of levels that do not work properly:
+    # 2-1 leads to 1-1 (corrupt savefile)
+    # 3-1 leads to 1-1 (corrupt savefile)
+    # 4-1 leads to 1-1 (corrupt savefile)
+    # 4-6 leads to 1-1 (corrupt savefile)
+    # 5-6 leads to 1-1 (corrupt savefile)
+    # 6-6 leads to 1-1 (corrupt savefile)
+    # 7-6 leads to 1-1 (corrupt savefile)
+    # 8-6 leads to 1-1 (corrupt savefile)
+    # 9-6 leads to 1-1 (corrupt savefile)
+    # 10-6 leads to 1-1 (corrupt savefile)
+    # 11-6 leads to 1-1 (corrupt savefile)
+    # 12-6 leads to 1-1 (corrupt savefile)
+    
+
   # Use this to run Zuma.exe
   def runGame(self):
     subprocess.Popen(fr"{self.gameLocation}", shell=True)
