@@ -105,6 +105,7 @@ class Editor:
 
   # Use this to change which level you want to play
   # Argument expects the same format the game uses: [world]-[level]
+  # Also edits other information such as points
   def selectLevel(self, location: str):
     world = int(location.split("-")[0])
     level = int(location.split("-")[1])
@@ -114,7 +115,7 @@ class Editor:
       print("invalid level for the world")
       return
     
-    byte = level + self.LEVELS[world][1] - 1
+    byte = level + self.LEVELS[world][1] - 2
     
     with open("adv1.sav", "rb") as file:
       # Change the actual level
@@ -207,16 +208,16 @@ class Editor:
     1: ((1, 2, 3, 4, 5), 0),
     2: ((1, 2, 3, 4, 5), 5),
     3: ((1, 2, 3, 4, 5), 10),
-    4: ((1, 2, 3, 4, 5, 6), 14),
-    5: ((1, 2, 3, 4, 5, 6), 20),
-    6: ((1, 2, 3, 4, 5, 6), 26),
-    7: ((1, 2, 3, 4, 5, 6, 7), 32),
-    8: ((1, 2, 3, 4, 5, 6, 7), 39),
-    9: ((1, 2, 3, 4, 5, 6, 7), 46),
-    10: ((1, 2, 3, 4, 5, 6, 7), 53),
-    11: ((1, 2, 3, 4, 5, 6, 7), 60),
-    12: ((1, 2, 3, 4, 5, 6, 7), 67),
-    13: ((1, 1), 74)
+    4: ((1, 2, 3, 4, 5, 6), 15),
+    5: ((1, 2, 3, 4, 5, 6), 21),
+    6: ((1, 2, 3, 4, 5, 6), 27),
+    7: ((1, 2, 3, 4, 5, 6, 7), 33),
+    8: ((1, 2, 3, 4, 5, 6, 7), 40),
+    9: ((1, 2, 3, 4, 5, 6, 7), 47),
+    10: ((1, 2, 3, 4, 5, 6, 7), 54),
+    11: ((1, 2, 3, 4, 5, 6, 7), 61),
+    12: ((1, 2, 3, 4, 5, 6, 7), 68),
+    13: ((1, 1), 75)
   }
   
   # Behaviors is the list of strings that are valid for the DEFAULTBEHAVIOR section, which defines what to do once you change level
